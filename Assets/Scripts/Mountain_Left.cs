@@ -5,14 +5,14 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter))]
-public class Mountain_Right : MonoBehaviour
+public class Mountain_Left : MonoBehaviour
 {
     private Vector3[] vertices;
     private Vector2[] UV;
     private Vector3[] normals;
     private int[] triangles;
-    private int Width;
-    private int Height;
+    public int Width;
+    public int Height;
     private int recursionLevels;
     private int vertexCount = 4;
     private int triangleCount;
@@ -60,27 +60,27 @@ public class Mountain_Right : MonoBehaviour
         // All the normals can point out of screen (-Z axis) ==> 2D game.
         for (int i = 0; i < normals.Length; i++)
         {
-            normals[i] = Vector3.forward;
+            normals[i] = -Vector3.forward;
         }
 
         // Base mesh vertices.
-        vertices[0] = new Vector3(0f, 0f); // Bottom left vertex
-        vertices[1] = new Vector3(Width / 2, 0f); // Bottom right vertex
-        vertices[vertexCount - 1] = new Vector3(Width / 6, Height); // Top vertex
+        vertices[0] = new Vector3(0f, 0f); // Bottom right vertex
+        vertices[1] = new Vector3(-Width / 2, 0f); // Bottom left vertex
+        vertices[vertexCount - 1] = new Vector3(-Width / 6, Height); // Top vertex
         vertices[vertexCount / 2] = new Vector3((vertices[vertexCount - 1].x + vertices[1].x) / 2,
                                                 (vertices[vertexCount - 1].y + vertices[1].y) / 2); // Mid point between bottom left & top
 
         // Setting up left triangle
         // Based on the bottom right, bottom left, and midpoint vertex
         triangles[0] = 0;
-        triangles[1] = vertexCount / 2;
-        triangles[2] = 1;
+        triangles[1] = 1;
+        triangles[2] = vertexCount/2;
 
         // Setting up right triangle
         // Based on the bottom right, bottom left, and midpoint vertex
         triangles[triangleCount/2] = 0;
-        triangles[triangleCount/2 + 1] = vertexCount - 1;
-        triangles[triangleCount/2 + 2] = vertexCount / 2;
+        triangles[triangleCount/2 + 1] = vertexCount / 2;
+        triangles[triangleCount/2 + 2] = vertexCount - 1;
 
         // The next recursion level will deal with less vertices and recursion levels than the total.
         int rec_vertexCount = vertexCount - (int) Mathf.Pow(2.0f, (float) recursionLevels);
@@ -108,14 +108,12 @@ public class Mountain_Right : MonoBehaviour
         // normal = (-dy, dx) or (dy, -dx)
         Vector3 normal = new Vector3( -(vertices[rightVertexIndex].y - vertices[leftVertexIndex].y),
             vertices[rightVertexIndex].x - vertices[leftVertexIndex].x);
-
+        // Random value between 0 and 1 that determines normal's direction, since we have two normals for each segment
         float normalDirection = Random.value;
         if (normalDirection < 0.5f)
         {
             normal.Scale(-Vector3.one);
         }
-        // Random value between 0 and 1 that determines normal's direction, since we have two normals for each segment
-        
         midpoint +=
             normal / (smoothness * Vector3.Distance(vertices[leftVertexIndex], vertices[rightVertexIndex]));
         // placing midpoint in vertices array
@@ -123,13 +121,13 @@ public class Mountain_Right : MonoBehaviour
 
         // New left triangle
         triangles[currentTriangleIndex] = 0;
-        triangles[currentTriangleIndex + 1] = leftVertexIndex + 1;
-        triangles[currentTriangleIndex + 2] = leftVertexIndex;
+        triangles[currentTriangleIndex + 1] = leftVertexIndex;
+        triangles[currentTriangleIndex + 2] = leftVertexIndex + 1;
         
         // New right triangle
         triangles[currentTriangleIndex + 3] = 0;
-        triangles[currentTriangleIndex + 4] = leftVertexIndex + 2;
-        triangles[currentTriangleIndex + 5] = leftVertexIndex + 1;
+        triangles[currentTriangleIndex + 4] = leftVertexIndex + 1;
+        triangles[currentTriangleIndex + 5] = leftVertexIndex + 2;
 
         if (recursionLevel != 0)
         {
