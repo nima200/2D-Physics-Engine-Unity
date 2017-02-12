@@ -4,34 +4,34 @@ using UnityEngine;
 
 public class PhysicsEngine_2D : MonoBehaviour
 {
-    [Range(0f, 20f)] public float gravity;
-    [Range(0f, 10f)] public float mass;
-    public Vector3 velocity = Vector3.zero;
-    private Vector3 acceleration = Vector3.zero;
-    private Cannon cannon;
+    [Range(0f, 20f)] public float Gravity;
+    [Range(0f, 10f)] public float Mass;
+    public Vector3 Velocity = Vector3.zero;
+    private Vector3 _acceleration = Vector3.zero;
+    private Cannon _cannon;
 
 	// Use this for initialization
 	void Start ()
 	{
-	    cannon = GameObject.Find("Cannon").GetComponent<Cannon>();
+	    _cannon = GameObject.Find("Cannon").GetComponent<Cannon>();
 
         // Compoenent Initial velocity
         // Vx = Vi * Cos(Theta)
         // Vy = Vi * Sin(Theta)
-	    velocity.x = cannon.velocity * Mathf.Cos(Mathf.Deg2Rad * cannon.angle);
-	    velocity.y = cannon.velocity * Mathf.Sin(Mathf.Deg2Rad * cannon.angle);
+	    Velocity.x = _cannon.Velocity * Mathf.Cos(Mathf.Deg2Rad * _cannon.Angle);
+	    Velocity.y = _cannon.Velocity * Mathf.Sin(Mathf.Deg2Rad * _cannon.Angle);
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-	    acceleration.y -= mass * gravity * Time.deltaTime;
-	    if (cannon.wind != 0)
+	    _acceleration.y -= Mass * Gravity * Time.deltaTime;
+	    if (_cannon.Wind > 0 || _cannon.Wind < 0)
 	    {
-            acceleration += velocity * cannon.wind * Time.deltaTime;
+            _acceleration += Velocity * _cannon.Wind * Time.deltaTime;
         }
         
-	    velocity += acceleration * Time.deltaTime;
-	    transform.position += velocity * Time.deltaTime;
+	    Velocity += _acceleration * Time.deltaTime;
+	    transform.position += Velocity * Time.deltaTime;
 	}
 }

@@ -4,16 +4,16 @@ using UnityEngine;
 
 public class Cannon : MonoBehaviour
 {
-    [Range(0, 100)] public int velocity;
-    [Range(0, 90)] public int angle;
-    [Range(-0.5f, 0.5f)] public float wind;
-    public GameObject projectilePrefab;
+    [Range(0, 20)] public int Velocity;
+    [Range(0, 90)] public int Angle;
+    [Range(-1f, 1f)] public float Wind;
+    public GameObject ProjectilePrefab;
 	
 	// Update is called once per frame
 	void Update () {
 	    if (Input.GetKeyDown(KeyCode.Space))
 	    {
-	        Instantiate(projectilePrefab, GameObject.Find("Column").transform, false);
+	        Instantiate(ProjectilePrefab, GameObject.Find("Column").transform, false);
 	    }
 	}
 }

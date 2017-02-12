@@ -15,6 +15,6 @@ public class Barrel : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
 	{
-	    transform.rotation = Quaternion.Euler(0f, 0f, cannon.angle-90f);
+	    transform.rotation = Quaternion.Euler(0f, 0f, cannon.Angle-90f);
 	}
 }
