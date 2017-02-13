@@ -18,7 +18,7 @@ public class MountainRight : MonoBehaviour
     private int _triangleCount;
     private int _smoothness;
     // Use this for initialization
-    void Start ()
+    private void Start ()
 	{
 	    GetComponent<MeshFilter>().mesh = GenerateBaseMesh();
 	}
@@ -36,13 +36,14 @@ public class MountainRight : MonoBehaviour
 
         // Adding up powers of two
         // On each recursion level, two new vertices are added
-        // 1) Midpoint of the side of the triangle
-        // 2) Somewhere above the midpoint
+        // 1) Vertex in middle of left segment
+        // 2) Vertex in middle of right segment
 
         for (int i = 1; i < _recursionLevels + 1; i++)
         {
             _vertexCount += (int)Mathf.Pow(2.0f, (float)i);
         }
+
         _triangleCount = 3 * (_vertexCount - 2);
         // Instantiating the mesh and the arrays needed for it
         Mesh mesh = new Mesh(); 
@@ -99,44 +100,55 @@ public class MountainRight : MonoBehaviour
 
     private void GenerateRecursiveMesh(int vertexCount, int triangleCount, int currentTriangleIndex, int leftVertexIndex, int recursionLevel)
     {
-        // right vertex's index has to be found with consideration of previous recursive level
-        int rightVertexIndex = leftVertexIndex + (int) Mathf.Pow(2.0f, (float) (recursionLevel + 1));
-
-        // Calculating the midpoint using linear interpolation
-        Vector3 midpoint = Vector3.Lerp(_vertices[leftVertexIndex], _vertices[rightVertexIndex], 0.5f);
-        // Calculating normal using following formula: a = (x_1, y_1), b = (x_2, y_2), dx = x_2 - x_1 , dy = y_2 - y_1
-        // normal = (-dy, dx) or (dy, -dx)
-        Vector3 normal = new Vector3( -(_vertices[rightVertexIndex].y - _vertices[leftVertexIndex].y),
-            _vertices[rightVertexIndex].x - _vertices[leftVertexIndex].x);
-
-        float normalDirection = Random.value;
-        if (normalDirection < 0.5f)
+        while (true)
         {
-            normal.Scale(-Vector3.one);
-        }
-        // Random value between 0 and 1 that determines normal's direction, since we have two normals for each segment
-        
-        midpoint +=
-            normal / (_smoothness * Vector3.Distance(_vertices[leftVertexIndex], _vertices[rightVertexIndex]));
-        // placing midpoint in vertices array
-        _vertices[leftVertexIndex + (int) Mathf.Pow(2.0f, (float) recursionLevel)] = midpoint;
+            // right vertex's index has to be found with consideration of previous recursive level
+            int rightVertexIndex = leftVertexIndex + (int) Mathf.Pow(2.0f, (float) (recursionLevel + 1));
 
-        // New left triangle
-        _triangles[currentTriangleIndex] = 0;
-        _triangles[currentTriangleIndex + 1] = leftVertexIndex + 1;
-        _triangles[currentTriangleIndex + 2] = leftVertexIndex;
-        
-        // New right triangle
-        _triangles[currentTriangleIndex + 3] = 0;
-        _triangles[currentTriangleIndex + 4] = leftVertexIndex + 2;
-        _triangles[currentTriangleIndex + 5] = leftVertexIndex + 1;
+            // Calculating the midpoint using linear interpolation
+            Vector3 midpoint = Vector3.Lerp(_vertices[leftVertexIndex], _vertices[rightVertexIndex], 0.5f);
+            // Calculating normal using following formula: a = (x_1, y_1), b = (x_2, y_2), dx = x_2 - x_1 , dy = y_2 - y_1
+            // normal = (-dy, dx) or (dy, -dx)
+            Vector3 normal = new Vector3(-(_vertices[rightVertexIndex].y - _vertices[leftVertexIndex].y), _vertices[rightVertexIndex].x - _vertices[leftVertexIndex].x);
 
-        if (recursionLevel != 0)
-        {
+            float normalDirection = Random.value;
+            if (normalDirection < 0.5f)
+            {
+                normal.Scale(-Vector3.one);
+            }
+            // Random value between 0 and 1 that determines normal's direction, since we have two normals for each segment
+
+            midpoint += normal / (_smoothness * Vector3.Distance(_vertices[leftVertexIndex], _vertices[rightVertexIndex]));
+            // placing midpoint in vertices array
+            _vertices[leftVertexIndex + (int) Mathf.Pow(2.0f, (float) recursionLevel)] = midpoint;
+
+            // New left triangle
+            _triangles[currentTriangleIndex] = 0;
+            _triangles[currentTriangleIndex + 1] = leftVertexIndex + 1;
+            _triangles[currentTriangleIndex + 2] = leftVertexIndex;
+
+            // New right triangle
+            _triangles[currentTriangleIndex + 3] = 0;
+            _triangles[currentTriangleIndex + 4] = leftVertexIndex + 2;
+            _triangles[currentTriangleIndex + 5] = leftVertexIndex + 1;
+
+            // Stopping the iteration 
+            if (recursionLevel == 0) break;
+
             int recVertexCount = vertexCount - (int) Mathf.Pow(2.0f, (float) recursionLevel);
-            GenerateRecursiveMesh(recVertexCount, triangleCount/2, currentTriangleIndex, leftVertexIndex, recursionLevel - 1);
-            GenerateRecursiveMesh(recVertexCount, triangleCount/2, currentTriangleIndex + triangleCount / 2,
-                leftVertexIndex + vertexCount / 2 - 1, recursionLevel - 1);
+
+            GenerateRecursiveMesh(recVertexCount, triangleCount / 2, currentTriangleIndex, leftVertexIndex, recursionLevel - 1);
+
+            // The following attributes simulate a tail recursive call onto the right triangle.
+            // Keeping the stack as empty as possible
+
+            int triangleCount1 = triangleCount;
+            int vertexCount1 = vertexCount;
+            vertexCount = recVertexCount;
+            triangleCount = triangleCount / 2;
+            currentTriangleIndex = currentTriangleIndex + triangleCount1 / 2;
+            leftVertexIndex = leftVertexIndex + vertexCount1 / 2 - 1;
+            recursionLevel = recursionLevel - 1;
         }
     }
 }
