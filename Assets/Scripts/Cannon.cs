@@ -4,16 +4,22 @@ using UnityEngine;
 
 public class Cannon : MonoBehaviour
 {
-    [Range(0, 20)] public int Velocity;
-    [Range(0, 90)] public int Angle;
-    [Range(-1f, 1f)] public float Wind;
-    public GameObject ProjectilePrefab;
-	
+    [Range(0, 40)] public int Velocity;
+    [Range(0, 80)] public int Angle;
+    public PhysicsEngine_2D ProjectilePrefab;
+    public ProjectileType MyProjectileType;
+
+    private void Awake()
+    {
+        MyProjectileType = ProjectilePrefab.ProjectileType;
+        gameObject.name = MyProjectileType == ProjectileType.Ball ? "BallCannon" : "GoatCannon";
+    }
+
 	// Update is called once per frame
-	void Update () {
-	    if (Input.GetKeyDown(KeyCode.Space))
+    private void Update () {
+        if (Input.GetKeyDown(KeyCode.Space))
 	    {
-	        Instantiate(ProjectilePrefab, GameObject.Find("Column").transform, false);
+	        Instantiate(ProjectilePrefab, gameObject.GetComponentInChildren<Barrel>().gameObject.transform, false);
 	    }
 	}
 }
