@@ -89,7 +89,7 @@ public class MountainRight : MonoBehaviour
         GenerateRecursiveMesh(recVertexCount, _triangleCount/2, _triangleCount/2, _vertexCount/2, _recursionLevels - 1);
 
         // Linking the generated arrays to the actual Mesh's DS.
-        mesh.name = "Mountain";
+        mesh.name = "Mountain_Right";
         mesh.vertices = _vertices;
         mesh.triangles = _triangles;
         mesh.uv = _uv;
