@@ -11,6 +11,6 @@ public class Mountain : MonoBehaviour {
 
     private void Awake()
     {
-        Width = Random.Range(10.0f, 12.0f);
+        Width = Random.Range(12f, 17f);
     }
 }
