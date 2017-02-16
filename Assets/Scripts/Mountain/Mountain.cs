@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class Mountain : MonoBehaviour {
     // Global parameters for the mountain components to feed off of.
-    public int Width;
+    public float Width;
     public int Height;
-    [Range(1, 10)] public int recursionLevels;
-    [Range(1, 50)] public int smoothness;
+    [Range(1, 10)] public int RecursionLevels;
+    [Range(1, 50)] public int Smoothness;
+
+    private void Awake()
+    {
+        Width = Random.Range(12f, 17f);
+    }
 }

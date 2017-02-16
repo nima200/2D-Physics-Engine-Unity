@@ -4,17 +4,21 @@ using UnityEngine;
 
 public class Barrel : MonoBehaviour
 {
-    private Cannon cannon;
+    private Cannon _cannon;
+    private ProjectileType _projectileType;
 
 	// Use this for initialization
 	void Start ()
 	{
-	    cannon = GameObject.Find("Cannon").GetComponent<Cannon>();
+	    _cannon = GetComponentInParent<Cannon>();
+	    _projectileType = _cannon.MyProjectileType;
 	}
 	
 	// Update is called once per frame
 	void Update ()
 	{
-	    transform.rotation = Quaternion.Euler(0f, 0f, cannon.Angle-90f);
+	    transform.rotation = _projectileType == ProjectileType.Ball
+	        ? Quaternion.Euler(0f, 0f, _cannon.Angle - 90f)
+	        : Quaternion.Euler(0f, 0f, 90f - _cannon.Angle);
 	}
 }
