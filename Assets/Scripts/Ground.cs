@@ -54,7 +54,4 @@ public class Ground : MonoBehaviour {
         return mesh;
     }
 
-    private void Update () {
-		
-	}
 }
