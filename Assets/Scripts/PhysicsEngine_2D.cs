@@ -8,7 +8,7 @@ public class PhysicsEngine_2D : MonoBehaviour
 {
     [Range(0f, 10f)] public float Mass;
     [Range(1f, 200f)] public float Bounce;
-    public Vector3 _velocity;
+    private Vector3 _velocity;
     private Vector3 _acceleration;
     private Cannon _cannon;
     private EnvironmentForces _forces;
@@ -21,7 +21,6 @@ public class PhysicsEngine_2D : MonoBehaviour
     private List<Vector3> _mountainVertices;
     private List<Vector3> _mountainTopVertices;
     private List<Vector3> _groundVertices;
-    private bool _exploded;
 
     private void Awake()
     {
@@ -48,7 +47,7 @@ public class PhysicsEngine_2D : MonoBehaviour
     // Use this for initialization
 	private void Start ()
 	{
-	    _cannon = GameObject.Find(ProjectileType.ToString() + ("Cannon")).GetComponent<Cannon>();
+	    _cannon = GameObject.Find(ProjectileType.ToString() + "Cannon").GetComponent<Cannon>();
 	    _forces = GameObject.Find("Environment Forces").GetComponent<EnvironmentForces>();
         // Compoenent Initial velocity
         // Vx = Vi * Cos(Theta)
@@ -88,7 +87,8 @@ public class PhysicsEngine_2D : MonoBehaviour
 	    }
 	    _velocity += _acceleration * Time.deltaTime;
 	    transform.position += _velocity * Time.deltaTime;
-        if (transform.position.x > 18f || transform.position.y > 18f || transform.position.x < -18f || transform.position.y < -5f)
+	    if (transform.position.x > 18f || transform.position.y > 20f || transform.position.x < -18f ||
+	        transform.position.y < -5f)
         {
             Destroy(gameObject);
         }
@@ -101,48 +101,60 @@ public class PhysicsEngine_2D : MonoBehaviour
                 // Coroutine to delay destruction
 	            StartCoroutine(DestroyProjectile());
 	        }
-	        var mountainVertexPairs =
-	            from vertex1 in _mountainVertices
-	            from vertex2 in _mountainVertices
-	            select new[] {vertex1, vertex2};
-	        foreach (var pair in mountainVertexPairs)
+            // Grabbing all possible pairs of vertices in the mountain sides mesh and checking for collision
+            // i.e. checking for collision against edges
+	        for (int i = 0; i < _mountainVertices.Count - 1; i++)
 	        {
-	            if (MyMath.PointLineDistance(pair[0], pair[1], transform.GetComponentInChildren<Circle>().gameObject.transform.position) > 0.25f) continue;
-                ResetAcceleration();
-	            ResetVelocity();
-//	            _velocity += new Vector3(((pair[1] - pair[0]).x - Vector3.zero.x), ((pair[1] - pair[0]).y - Vector3.zero.y), 0f) * Bounce * Time.deltaTime;
-	            _velocity += new Vector3((transform.position.x - Vector3.zero.x), (transform.position.y - Vector3.zero.y) / 5, 0f) * Bounce * Time.deltaTime;
-	        }
-            var mountainTopVertexPairs =
-                from vertex1 in _mountainTopVertices
-                from vertex2 in _mountainTopVertices
-                select new[] { vertex1, vertex2 };
-            foreach (var pair in mountainTopVertexPairs)
-            {
-                if (MyMath.PointLineDistance(pair[0], pair[1], transform.GetComponentInChildren<Circle>().gameObject.transform.position) > 0.25f) continue;
-                ResetAcceleration();
-                ResetVelocity();
-                //	            _velocity += new Vector3(((pair[1] - pair[0]).x - Vector3.zero.x), ((pair[1] - pair[0]).y - Vector3.zero.y), 0f) * Bounce * Time.deltaTime;
-                _velocity += new Vector3((transform.position.x - Vector3.zero.x), (transform.position.x - Vector3.zero.x) , 0f) * Bounce * Time.deltaTime;
-                Bounce /= 1.005f;
-            }
+	            Vector3 a = _mountainVertices[i];
+	            Vector3 b = _mountainVertices[i + 1];
+	            Vector3 ballPosition = transform.GetComponentInChildren<Circle>()
+	                .gameObject.transform.position;
+	            if (MyMath.PointLineDistance(a, b, ballPosition) < 0.25f)
+	            {
+                    ResetAcceleration();
+                    ResetVelocity();
+	                _velocity += new Vector3(transform.position.x - Vector3.zero.x,
+	                                 transform.position.y - Vector3.zero.y,
+	                                 0f) * Bounce * Time.deltaTime;
+                    Bounce = Bounce * 0.70f;
+	                break;
+	            }
 
-        }
-	    if (GroundToCollide != null)
-	    {
-	        var groundVertexPairs =
-	            from vertex1 in _groundVertices
-	            from vertex2 in _groundVertices
-	            select new[] {vertex1, vertex2};
-	        foreach (var pair in groundVertexPairs)
-	        {
-                if (MyMath.PointLineDistance(pair[0], pair[1], transform.position) > 0.35f) continue;
-                ResetAcceleration();
-                ResetVelocity();
-                _velocity += new Vector3((transform.position.x - Vector3.zero.x)/5, Vector3.up.y * 5, 0f) * Bounce * Time.deltaTime;
-	            Bounce /= 1.1f;
 	        }
-	    }
+            for (int i = 0; i < _mountainTopVertices.Count - 1; i++)
+            {
+                Vector3 a = _mountainTopVertices[i];
+                Vector3 b = _mountainTopVertices[i + 1];
+                Vector3 ballPosition = transform.GetComponentInChildren<Circle>()
+                    .gameObject.transform.position;
+                if (MyMath.PointLineDistance(a, b, ballPosition) < 0.25f)
+                {
+                    ResetAcceleration();
+                    ResetVelocity();
+                    _velocity += new Vector3(transform.position.x - Vector3.zero.x,
+                                     transform.position.y - Vector3.zero.y) * Bounce * Time.deltaTime;
+                    Bounce = Bounce * 0.70f;
+                    break;
+                }
+            }
+            for (int i = 0; i < _groundVertices.Count - 1; i++)
+            {
+                Vector3 a = _groundVertices[i];
+                Vector3 b = _groundVertices[i + 1];
+                Vector3 ballPosition = transform.GetComponentInChildren<Circle>()
+                    .gameObject.transform.position;
+                if (MyMath.PointLineDistance(a, b, ballPosition) < 0.25f)
+                {
+                    ResetAcceleration();
+                    ResetAcceleration();
+                    ResetVelocity();
+                    _velocity += new Vector3(transform.position.x - Vector3.zero.x, Vector3.up.y * 10f) * Bounce *
+                                 Time.deltaTime;
+                    Bounce = Bounce * 0.70f;
+                    break;
+                }
+            }
+        }
     }
 
     private void ResetVelocity()
@@ -157,10 +169,12 @@ public class PhysicsEngine_2D : MonoBehaviour
 
     private void ExtractMountain()
     {
-        // Extracting all mountain mesh vertices, for all present parts (Left/Middle/Right) of the mountain
+        // Extracting all mountain mesh vertices, for all left and right part of the mountain
         if (MountainLeft)
         {
-            foreach (Vector3 t in MountainToCollide.GetComponentInChildren<MountainLeft>().gameObject.GetComponent<MeshFilter>().mesh.vertices)
+            foreach (Vector3 t in MountainToCollide.GetComponentInChildren<MountainLeft>()
+                .gameObject.GetComponent<MeshFilter>()
+                .mesh.vertices)
             {
                 if (!_mountainVertices.Contains(t))
                 {
@@ -181,7 +195,7 @@ public class PhysicsEngine_2D : MonoBehaviour
             }
         }
     }
-
+    // Extracting mountain top vertices if present
     private void ExtractMountainTop()
     {
         if (MountainMiddle)
