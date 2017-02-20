@@ -1,69 +1,38 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 
-public class Verlet
+public class Verlet : MonoBehaviour
 {
-//private:
-    private float _angle;
-    private float _wind;
-    private float _initialVelocity;
-    private float _gravity;
-    private float _airResistance;
-    private Vector3 _velocity;
-    private Vector3 _acceleration;
-    private Vector3 _lastPosition;
-    private Vector3 _currentPosition;
-    private Vector3 _forces;
-//public:
-    public GameObject Point;
+    public Vector3 InitialPosition;
+    public Vector3 CurrentPosition;
+    public Vector3 PreviousPosition;
+    public Vector3 CurrentForce;
+    public float Mass;
+    public float TimeStep;
+    public int Index;
 
-    public Verlet(float angle, float wind, float airResistance, Vector3 position)
+    public Vector3 _velocity;
+    public bool _hasCollided;
+
+    private void Awake()
     {
-        _angle = angle;
-        _wind = wind;
-        _gravity = 9.81f;
-        _airResistance = airResistance;
         _velocity = Vector3.zero;
-        _acceleration = Vector3.zero;
-        _velocity = new Vector3(_initialVelocity * Mathf.Cos(Mathf.Deg2Rad * _angle),
-            _initialVelocity * Mathf.Sin(Mathf.Deg2Rad * _angle));
-        _currentPosition = position;
-        _lastPosition = _currentPosition - _velocity;
-        if (_wind > 0 || _wind < 0)
-        {
-            _forces = new Vector3(-_wind + _airResistance, _airResistance + _gravity);
-        }
-        Point.transform.position = _currentPosition;
+        gameObject.name = "Verlet";
+        Mass = 1.0f;
+        _hasCollided = false;
     }
 
-    public void Update(float deltaTime)
+    private void Start()
     {
-        _lastPosition = _currentPosition;
-        _currentPosition = _currentPosition + (_currentPosition - _lastPosition) + _forces * Mathf.Pow(deltaTime, 2);
+        transform.SetParent(transform, false);
+        transform.position = transform.parent.position + InitialPosition;
+        CurrentPosition = InitialPosition;
     }
 
-    public float GetAngle()
+    private void Update()
     {
-        return _angle;
-    }
-
-    public float GetWind()
-    {
-        return _wind;
-    }
-
-    public float GetInitialVelocity()
-    {
-        return _initialVelocity;
-    }
-
-    public float GetGravity()
-    {
-        return _gravity;
-    }
-
-    public float GetAirResistance()
-    {
-        return _airResistance;
+        transform.position = transform.parent.position + CurrentPosition;
     }
 
     public Vector3 GetVelocity()
@@ -71,63 +40,18 @@ public class Verlet
         return _velocity;
     }
 
-    public Vector3 GetLastPosition()
-    {
-        return _lastPosition;
-    }
-
-    public Vector3 GetCurrentPosition()
-    {
-        return _currentPosition;
-    }
-
-    public Vector3 GetForces()
-    {
-        return _forces;
-    }
-
-    public void SetAngle(float angle)
-    {
-        _angle = angle;
-    }
-
-    public void SetWind(float wind)
-    {
-        _wind = wind;
-    }
-
-    public void SetInitialVelocity(float initialVelocity)
-    {
-        _initialVelocity = initialVelocity;
-    }
-
-    public void SetGravity(float gravity)
-    {
-        _gravity = gravity;
-    }
-
-    public void SetAirResistance(float airResistance)
-    {
-        _airResistance = airResistance;
-    }
-
     public void SetVelocity(Vector3 velocity)
     {
         _velocity = velocity;
     }
 
-    public void SetLastPosition(Vector3 lastPosition)
+    public void SetConstraint(Verlet v)
     {
-        _lastPosition = lastPosition;
+        ConstraintSolver.Set(Index, v.Index, CurrentPosition, v.CurrentPosition);
     }
 
-    public void SetCurrentPosition(Vector3 currentPosition)
+    public void SetPreviousPosition()
     {
-        _currentPosition = currentPosition;
-    }
-
-    public void SetForces(Vector3 forces)
-    {
-        _forces = forces;
+        PreviousPosition = InitialPosition - _velocity * TimeStep;
     }
 }

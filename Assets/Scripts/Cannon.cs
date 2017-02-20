@@ -7,6 +7,7 @@ public class Cannon : MonoBehaviour
     [Range(0, 40)] public int Velocity;
     [Range(0, 80)] public int Angle;
     public PhysicsEngine_2D ProjectilePrefab;
+    public Animal Goat;
     public ProjectileType MyProjectileType;
 
     private void Awake()
@@ -15,11 +16,14 @@ public class Cannon : MonoBehaviour
         gameObject.name = MyProjectileType == ProjectileType.Ball ? "BallCannon" : "GoatCannon";
     }
 
-	// Update is called once per frame
     private void Update () {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && MyProjectileType == ProjectileType.Ball)
 	    {
-	        Instantiate(ProjectilePrefab, gameObject.GetComponentInChildren<Barrel>().gameObject.transform, false);
-	    }
-	}
+	        var projectile = Instantiate(ProjectilePrefab, gameObject.GetComponentInChildren<Barrel>().gameObject.transform, false);
+            ProjectileManager.Add(projectile);
+	    } else if (Input.GetKeyDown(KeyCode.Space) && MyProjectileType == ProjectileType.Goat)
+        {
+            Instantiate(Goat, gameObject.GetComponentInChildren<Barrel>().gameObject.transform, false);
+        }
+    }
 }

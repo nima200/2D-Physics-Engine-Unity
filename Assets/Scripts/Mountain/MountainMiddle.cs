@@ -12,24 +12,22 @@ public class MountainMiddle : MonoBehaviour {
     private float _width;
     private int _height;
 	// Use this for initialization
-	void Start () {
+    private void Start () {
         GetComponent<MeshFilter>().mesh = GenerateBaseMesh();
     }
-	
-	Mesh GenerateBaseMesh()
+
+    private Mesh GenerateBaseMesh()
     {
-        Mesh mesh = new Mesh();
+        var mesh = new Mesh();
         _vertices = new List<Vector3>();
         _triangles = new List<int>();
         // Extract global parameters between all mountain parts from the Mountain class.
-        Mountain mountain = GameObject.Find("Mountain").GetComponent<Mountain>();
+        var mountain = GameObject.Find("Mountain").GetComponent<Mountain>();
         _width = mountain.Width;
         _height = mountain.Height;
 
         _vertices.Add(new Vector3(0f, 0f));
-//        _vertices[1] = new Vector3(-_width / 6, _height);
-//        _vertices[2] = new Vector3(_width / 6, _height);
-        float increment = _width / 3 / 16;
+        float increment = _width / 3 / 32;
         for (float i = -_width / 6; i < _width / 6; i+= increment)
         {
             _vertices.Add(new Vector3(i, _height));
