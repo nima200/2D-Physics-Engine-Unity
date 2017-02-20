@@ -15,13 +15,12 @@ public class Ground : MonoBehaviour {
 
     private void Start ()
     {
-        GetComponent<MeshFilter>().mesh = generateGroundMesh();
+        GetComponent<MeshFilter>().mesh = GenerateGroundMesh();
     }
 
-    private Mesh generateGroundMesh()
+    private Mesh GenerateGroundMesh()
     {
-        Mesh mesh = new Mesh();
-        mesh.name = "Ground Mesh";
+        Mesh mesh = new Mesh {name = "Ground Mesh"};
         _vertices = new Vector3[4];
         _normals = new Vector3[4];
         _uvs = new Vector2[4];
@@ -33,10 +32,10 @@ public class Ground : MonoBehaviour {
             _uvs[i] = Vector2.zero;
         }
 
-        _vertices[0] = new Vector3(-Width / 2, 0f);
-        _vertices[1] = new Vector3(Width / 2, 0f);
-        _vertices[2] = new Vector3(-Width / 2, -Height);
-        _vertices[3] = new Vector3(Width / 2, -Height);
+        _vertices[0] = new Vector3((float) -Width / 2, 0f);
+        _vertices[1] = new Vector3((float) Width / 2, 0f);
+        _vertices[2] = new Vector3((float) -Width / 2, -Height);
+        _vertices[3] = new Vector3((float) Width / 2, -Height);
 
         _triangles[0] = 0;
         _triangles[1] = 1;
