@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using UnityEngine;
 
-public class Animal : MonoBehaviour
+public class Goat : MonoBehaviour
 {
     private float _airResistance;
     private float _angle;
@@ -467,6 +467,27 @@ public class Animal : MonoBehaviour
     {
         foreach (var t in _myVerlets)
         {
+            // My unsuccessful attempt at fixing the verlet collisions so that a verlet's next position would be calculated
+            // then a vector between its current and next position is drawn, and tested to see if the line segment intersects 
+            // the edge between the two consecutive vertices of the mountain. This would help fix the case where from one frame 
+            //to the next, my goat jumps inside the mountain, and also, it would stop the slowly melting into the mesh that goats do right now.
+            // Sadly it was a failed attempt.
+
+            /*for (int i = 0; i < _mountainVertices.Count - 1; i++)
+            {
+                if (t._hasCollided) continue;
+                var a = _mountainVertices[i];
+                var b = _mountainVertices[i + 1];
+                var nextPosition = t.CurrentPosition + t.CurrentPosition - t.PreviousPosition +
+                                t.CurrentForce * t.TimeStep * t.TimeStep;
+                var currentPosition = t.CurrentPosition;
+                if (!MyMath.CheckIntersect(a, b, t.transform.parent.position + currentPosition, t.transform.parent.position + nextPosition)) continue;
+                Debug.Log(nextPosition);
+                t.CurrentPosition = t.PreviousPosition;
+                t.PreviousPosition = t.CurrentPosition;
+                t._hasCollided = true;
+            }*/
+
             // Check against collision with mountain
             for (int j = 0; j < _mountainVertices.Count - 1; j++)
             {
@@ -478,6 +499,7 @@ public class Animal : MonoBehaviour
                 t.CurrentForce = Vector3.zero;
                 t._hasCollided = true;
             }
+            // Check against collision with ground
             for (int j = 0; j < _groundVertices.Count - 1; j++)
             {
 
@@ -490,7 +512,7 @@ public class Animal : MonoBehaviour
                 t._hasCollided = true;
                 StartCoroutine(DestroyGoat());
             }
-
+            // Check against collision with any projectiles in air
             foreach (var physicsEngine_2D in ProjectileManager.Projectiles)
             {
                 if (Vector3.Magnitude(t.transform.position - physicsEngine_2D.transform.position) > 0.3f) continue;
