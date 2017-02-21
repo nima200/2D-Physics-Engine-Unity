@@ -7,7 +7,7 @@ public class Cannon : MonoBehaviour
     [Range(0, 40)] public int Velocity;
     [Range(0, 80)] public int Angle;
     public PhysicsEngine_2D ProjectilePrefab;
-    public Animal Goat;
+    public Goat Goat;
     public ProjectileType MyProjectileType;
 
     private void Awake()
